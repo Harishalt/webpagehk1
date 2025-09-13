@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pro To-Do Lists</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1e1e2f, #2a2a40); /* Pleasant gradient */
+      color: #f1f1f1;
+    }
+
+    header {
+      background: #00cc66;
+      color: black;
+      padding: 20px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    nav {
+      background: #111;
+      display: flex;
+      justify-content: center;
+      padding: 10px;
+      border-bottom: 2px solid #00cc66;
+    }
+
+    nav button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border: none;
+      background: #333;
+      color: #00ff99;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    nav button:hover {
+      background: #00cc66;
+      color: black;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #1c1c2b;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      text-align: center;
+      color: #00ff99;
+    }
+
+    #datetime {
+      text-align: center;
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: #ffcc66;
+    }
+
+    .input-bar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .input-bar input {
+      padding: 10px;
+      width: 65%;
+      font-size: 16px;
+      border: 1px solid #444;
+      border-radius: 6px 0 0 6px;
+      background: #2c2c3a;
+      color: white;
+    }
+
+    .input-bar button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background: #00cc66;
+      color: black;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .input-bar button:hover {
+      background: #00994d;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2a2a3d;
+    }
+
+    .completed {
+      background: #004d26;
+      color: #66ffcc;
+      text-decoration: line-through;
+    }
+
+    .pending {
+      background: #3d2a2a;
+      color: #ff6666;
+    }
+
+    .task-buttons button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .task-buttons .toggle {
+      background: #00cc66;
+      color: black;
+    }
+
+    .task-buttons .delete {
+      background: red;
+      color: white;
+    }
+
+    .filters {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .filters button {
+      margin: 0 5px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 6px;
+      background: #333;
+      color: #00ff99;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .filters button:hover {
+      background: #00cc66;
+      color: black;
+    }
+
+    footer {
+      background: #00cc66;
+      color: black;
+      text-align: center;
+      padding: 15px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>🌟 Pro To-Do Manager 🌟</header>
+
+  <!-- Navigation for multiple lists -->
+  <nav>
+    <button onclick="switchList('Work')">Work</button>
+    <button onclick="switchList('Personal')">Personal</button>
+    <button onclick="switchList('Shopping')">Shopping</button>
+  </nav>
+
+  <div class="container">
+    <h2 id="listTitle">Work List</h2>
+    <div id="datetime"></div>
+
+    <div class="input-bar">
+      <input type="text" id="taskInput" placeholder="Enter a new task">
+      <button onclick="addTask()">Add</button>
+    </div>
+
+    <ul id="taskList"></ul>
+
+    <div class="filters">
+      <button onclick="filterTasks('all')">All</button>
+      <button onclick="filterTasks('completed')">Completed</button>
+      <button onclick="filterTasks('pending')">Pending</button>
+    </div>
+  </div>
+
+  <footer>© 2025 Pro To-Do Manager | Built with ❤️</footer>
+
+  <script>
+    const taskListEl = document.getElementById("taskList");
+    const taskInput = document.getElementById("taskInput");
+    const dateTimeEl = document.getElementById("datetime");
+    const listTitleEl = document.getElementById("listTitle");
+
+    let allLists = {
+      "Work": [],
+      "Personal": [],
+      "Shopping": []
+    };
+
+    let currentList = "Work";
+    let filter = "all";
+
+    // Update date and time
+    function updateDateTime() {
+      const now = new Date();
+      dateTimeEl.textContent = now.toLocaleString();
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    function switchList(name) {
+      currentList = name;
+      listTitleEl.textContent = name + " List";
+      renderTasks();
+    }
+
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (text === "") return;
+      const newTask = { id: Date.now(), text, completed: false };
+      allLists[currentList].push(newTask);
+      taskInput.value = "";
+      renderTasks();
+    }
+
+    function toggleTask(id) {
+      allLists[currentList] = allLists[currentList].map(task =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      );
+      renderTasks();
+    }
+
+    function deleteTask(id) {
+      allLists[currentList] = allLists[currentList].filter(task => task.id !== id);
+      renderTasks();
+    }
+
+    function filterTasks(type) {
+      filter = type;
+      renderTasks();
+    }
+
+    function getFilteredTasks() {
+      if (filter === "completed") {
+        return allLists[currentList].filter(task => task.completed);
+      } else if (filter === "pending") {
+        return allLists[currentList].filter(task => !task.completed);
+      }
+      return allLists[currentList];
+    }
+
+    function renderTasks() {
+      taskListEl.innerHTML = "";
+      const tasks = getFilteredTasks();
+      tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.className = task.completed ? "completed" : "pending";
+        li.textContent = task.text;
+
+        const btns = document.createElement("span");
+        btns.className = "task-buttons";
+
+        const toggleBtn = document.createElement("button");
+        toggleBtn.textContent = task.completed ? "Mark Pending" : "Mark Done";
+        toggleBtn.className = "toggle";
+        toggleBtn.onclick = () => toggleTask(task.id);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.className = "delete";
+        deleteBtn.onclick = () => deleteTask(task.id);
+
+        btns.appendChild(toggleBtn);
+        btns.appendChild(deleteBtn);
+
+        li.appendChild(btns);
+        taskListEl.appendChild(li);
+      });
+    }
+
+    // Initial render
+    renderTasks();
+  </script>
+</body>
+</html>
